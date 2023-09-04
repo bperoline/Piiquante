@@ -1,9 +1,15 @@
+/* Import des modules necessaires */
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const utilisateur = require('../models/utilisateur');
 const dotenv = require("dotenv").config({ encoding: "latin1" });
 
-// permet de se creer un compte
+/**
+ * Permet de se creer un compte
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10)
         .then(mdp => {
@@ -24,7 +30,12 @@ exports.signup = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-//permet de se connecter
+/**
+ * Permet de se connecter
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.login = (req, res, next) => {
     utilisateur.findOne({ email: req.body.email })
         .then((utilisateur) => {
@@ -50,7 +61,11 @@ exports.login = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-
+/**
+ * Permet de verifier l'adresse mail via les Regex
+ * @param {*} email 
+ * @returns 
+ */
 function regexEmail(email) {
 
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
