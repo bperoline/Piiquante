@@ -153,11 +153,50 @@ exports.suppSauce = async (req, res, next) => {
 };
 
 
+exports.like = async (req, res, next) => {
 
+    const laSauce = await sauce.findOne({
+        _id: req.params.id
+    })
 
+    switch (req.body.like) {
+        case 1:
+            if (!laSauce.usersLiked.includes(req.body.userId)) {
+                laSauce.likes++
+                laSauce.usersLiked.push(req.body.userId)
+                laSauce.save();
+                res.status(200).json({ message: 'Like' });
+            }
+            break;
+        case 0:
+            if (laSauce.usersLiked.includes(req.body.userId)) {
+                laSauce.likes--
+                laSauce.usersLiked.splice(req.body.userId)
+                laSauce.save();
+                res.status(200).json({ message: '-1 like' })
+            }
 
+            if (laSauce.usersDisliked.includes(req.body.userId)) {
+                laSauce.dislikes--
+                laSauce.usersDisliked.splice(req.body.userId)
+                laSauce.save();
+                res.status(200).json({ message: '-1 Dislike' })
+            }
 
-// export.like =
+            break;
+        case -1:
+            if (!laSauce.usersDisliked.includes(req.body.userId)) {
+                laSauce.dislikes++
+                laSauce.usersDisliked.push(req.body.userId)
+                laSauce.save();
+                res.status(200).json({ message: 'Dislike' })
+            }
+            break;
+
+        default:
+            res.status(401).json({ message: 'Not authorized' });
+    }
+}
 
 
 //module.exports = router;
