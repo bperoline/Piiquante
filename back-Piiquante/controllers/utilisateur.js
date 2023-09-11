@@ -15,7 +15,7 @@ exports.signup = (req, res, next) => {
         .then(mdp => {
             let ecqEmail = regexEmail(req.body.email)
             if (ecqEmail === true) {
-                const user = new Utilisateur({
+                const user = new utilisateur({
                     email: req.body.email,
                     password: mdp
                 });

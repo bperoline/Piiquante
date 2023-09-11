@@ -2,21 +2,17 @@
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv").config({ encoding: "latin1" });
 
-/**
- * Permet la vérification d'authentification
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- */
+/* Verification authentification */
 module.exports = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(" ")[1];
-        const decodeurToken = jwt.verify(token, process.env.SECRET_KEY);
-        const utilisateurId = decodeurToken.utilisateurId;
+        const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+        const userId = decodedToken.userId;
         req.auth = {
-            userId: utilisateurId,
+            userId: userId,
         }
-        if (req.body.userId && req.body.userId !== utilisateurId) {
+        console.log(req.auth)
+        if (req.body.userId && req.body.userId !== userId) {
             throw "Invalid user ID";
         } else {
             next();
