@@ -2,7 +2,7 @@
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv").config({ encoding: "latin1" });
 
-/* Verification authentification */
+// Permet de verifier l'authentification
 module.exports = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(" ")[1];
@@ -13,13 +13,13 @@ module.exports = (req, res, next) => {
         }
         console.log(req.auth)
         if (req.body.userId && req.body.userId !== userId) {
-            throw "Invalid user ID";
+            throw "Identifiant invalide";
         } else {
             next();
         }
     } catch {
         res.status(401).json({
-            error: new Error("Invalid request!"),
+            error: new Error("Requete invalide!"),
         });
     }
 };

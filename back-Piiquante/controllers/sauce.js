@@ -1,8 +1,15 @@
+/* Import des modules necessaires */
 const sauce = require('../models/sauce')
 const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv").config({ encoding: "latin1" });
 const fs = require('fs')
 
+/**
+ * Action permettant de recuperer toutes les sauces dans la BDD
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.default = (req, res, next) => {
     sauce.find().then(
         (sauce) => {
@@ -17,6 +24,12 @@ exports.default = (req, res, next) => {
     );
 };
 
+/**
+ * Action permettant de recuperer une sauce selon son id
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.sauceById = (req, res, next) => {
     sauce.findOne({
         _id: req.params.id
@@ -33,8 +46,15 @@ exports.sauceById = (req, res, next) => {
     );
 };
 
+/**
+ * Action permettant de sauvegarder une sauce 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.saveSauce = (req, res, next) => {
 
+    // Recuperer les informations des sauces dans la BDD + initialiser certaines valeurs
     const sauceObject = JSON.parse(req.body.sauce);
     const ttSauce = new sauce({
         ...sauceObject,
@@ -51,7 +71,7 @@ exports.saveSauce = (req, res, next) => {
     ttSauce.save().then(
         () => {
             res.status(201).json({
-                message: 'Post saved successfully!'
+                message: 'Sauce sauvegardée'
             });
         }
     ).catch(
@@ -63,6 +83,12 @@ exports.saveSauce = (req, res, next) => {
     );
 };
 
+/**
+ * Action permettant la mise à jour d'une sauce en verifiant le user id
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.majSauce = async (req, res, next) => {
 
     // Permet de recuperer l'userId
@@ -70,7 +96,6 @@ exports.majSauce = async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
     const userId = decodedToken.userId;
 
-    //
     const uneSauce = await sauce.findOne({
         _id: req.params.id
     });
@@ -78,7 +103,9 @@ exports.majSauce = async (req, res, next) => {
     const requete = JSON.parse(JSON.stringify(req.body));
     const regex = /http:\/\/localhost:3000(.*)/
 
+    // Verifie que l'utilisateur connecté est bien le créateur de la sauce
     if (uneSauce.userId === userId) {
+        // si la requete a comme propriété sauce:
         if (requete.hasOwnProperty('sauce') === true) {
             req.body.sauce = JSON.parse(req.body.sauce)
 
@@ -86,6 +113,7 @@ exports.majSauce = async (req, res, next) => {
                 _id: req.params.id
             }).then(
                 (sauce) => {
+                    // permet d'enlever le localost de l'URL de l'img selon le regex, et de retourner l'img actuel
                     const oldImg = regex.exec(sauce.imageUrl)
                     return oldImg[1];
                 }
@@ -98,11 +126,10 @@ exports.majSauce = async (req, res, next) => {
             );
 
             // permet la suppression de l'img
-
             fs.unlink(`.${unesauce}`, (err => {
                 if (err) console.log(err);
                 else {
-                    console.log("\nDeleted file: example_file.txt");
+                    console.log("Suppression de l'image");
                 }
             }));
 
@@ -111,7 +138,7 @@ exports.majSauce = async (req, res, next) => {
                 ...req.body.sauce, imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename
                     }`, _id: req.params.id
             })
-                .then(() => res.status(200).json({ message: 'Objet modifié !' }))
+                .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
                 .catch(error => res.status(400).json({ error })
                 );
         }
@@ -119,7 +146,7 @@ exports.majSauce = async (req, res, next) => {
 
             //permet la modification sans toucher a l'img
             sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-                .then(() => res.status(200).json({ message: 'Objet modifié !' }))
+                .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
                 .catch(error => res.status(400).json({ error })
                 );
 
@@ -128,6 +155,12 @@ exports.majSauce = async (req, res, next) => {
     };
 }
 
+/**
+ * Action permettant la suppression d'une sauce
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.suppSauce = async (req, res, next) => {
 
     // Permet de recuperer l'userId
@@ -135,25 +168,24 @@ exports.suppSauce = async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
     const userId = decodedToken.userId;
 
-    // Permet de supp une sauce de la BDD + site
     const uneSauce = await sauce.findOne({
         _id: req.params.id
     });
 
+    // Permet de supp une sauce s'il s'agit du créateur de la sauce
     if (uneSauce.userId === userId) {
         sauce.deleteOne({ _id: req.params.id })
             .then(() => res.status(200).json({ message: 'Sauce supprimée !' }))
             .catch(error => res.status(400).json({ error }));
     }
     else {
-        res.status(401).json({ message: 'Not authorized' });
+        res.status(401).json({ message: 'Non autorisé' });
     }
-
-    // Permet de supprimer l'img dans le fichier img
 
     const regex = /http:\/\/localhost:3000(.*)/
     const oldImg = regex.exec(uneSauce.imageUrl)
 
+    // Permet de supprimer l'img dans le dossier img
     fs.unlink(`.${oldImg[1]}`, (err => {
         if (err) console.log(err);
         else {
@@ -163,13 +195,21 @@ exports.suppSauce = async (req, res, next) => {
 
 };
 
-
+/**
+ * Action permettant de like et dislike une sauce
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.like = async (req, res, next) => {
 
     const laSauce = await sauce.findOne({
         _id: req.params.id
     })
 
+    // Permet d'ajouter un +1 ou enlever le +1 en like et de sauvegarder
+    // Permet d'ajouter un +1 ou enlever le +1 en dislike et de sauvegarder
+    // Permet d'ajouter les userliked et userdisliked a la BDD
     switch (req.body.like) {
         case 1:
             if (!laSauce.usersLiked.includes(req.body.userId)) {
@@ -205,9 +245,6 @@ exports.like = async (req, res, next) => {
             break;
 
         default:
-            res.status(401).json({ message: 'Not authorized' });
+            res.status(401).json({ message: 'Non autorisé' });
     }
 }
-
-
-//module.exports = router;

@@ -1,10 +1,10 @@
 /* Import des modules necessaires */
 let passwordValidator = require('password-validator');
 
-/* Permet la  création d'un schema */
+// Permet la création d'un schema
 let schema = new passwordValidator();
 
-/* Permet d'ajouter ces proprietées */
+// Permet d'ajouter ces proprietées
 schema
     // Minimum 8 caractères
     .is().min(8)
@@ -21,7 +21,7 @@ schema
     // Refus de ces mdp                         
     .is().not().oneOf(['Passw0rd', 'Password123']);
 
-
+// Permet d'exporter le schema de validiter du mdp
 module.exports = (req, res, next) => {
     if (schema.validate(req.body.password)) {
         next();

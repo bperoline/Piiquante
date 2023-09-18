@@ -1,7 +1,7 @@
 /* Import des modules necessaires */
 const mongoose = require('mongoose');
 
-/* Permet de construire un schéma sauce */
+// Permet de construire un schéma sauce
 const sauceSchema = mongoose.Schema({
     userId: { type: String, required: true },
     name: { type: String, required: true },

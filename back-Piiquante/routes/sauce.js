@@ -5,7 +5,7 @@ const sauceCtrl = require('../controllers/sauce')
 const guardAuth = require("../middleware/auth");
 const guardMulter = require("../middleware/multer-config");
 
-/* Route pour la sauce */
+// Route pour la sauce
 router.get('/', guardAuth, sauceCtrl.default);
 router.get('/:id', guardAuth, sauceCtrl.sauceById);
 router.post("/", guardAuth, guardMulter, sauceCtrl.saveSauce);

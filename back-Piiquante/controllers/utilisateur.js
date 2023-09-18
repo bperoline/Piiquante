@@ -5,7 +5,7 @@ const utilisateur = require('../models/utilisateur');
 const dotenv = require("dotenv").config({ encoding: "latin1" });
 
 /**
- * Permet de se creer un compte
+ * Action permettant de se creer un compte
  * @param {*} req 
  * @param {*} res 
  * @param {*} next 
@@ -31,7 +31,7 @@ exports.signup = (req, res, next) => {
 };
 
 /**
- * Permet de se connecter
+ * Action permettant de se connecter
  * @param {*} req 
  * @param {*} res 
  * @param {*} next 
@@ -62,7 +62,7 @@ exports.login = (req, res, next) => {
 };
 
 /**
- * Permet de verifier l'adresse mail via les Regex
+ * Function permettant de verifier l'adresse mail via les Regex
  * @param {*} email 
  * @returns 
  */
